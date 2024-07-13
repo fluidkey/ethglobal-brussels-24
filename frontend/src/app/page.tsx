@@ -59,7 +59,7 @@ export default function Home() {
       const unformattedUsdcBorrowed = userReservesData[0].find(balance => balance.underlyingAsset === "0xaf88d065e77c8cC2239327C5EDb3A432268e5831")?.scaledVariableDebt ?? BigInt(0);
       const usdcLiquidityIndex = reservesData[0].find(reserve => reserve.underlyingAsset === "0xaf88d065e77c8cC2239327C5EDb3A432268e5831")?.liquidityIndex ?? BigInt(0);
       const finalUsdcBorrowed = unformattedUsdcBorrowed * usdcLiquidityIndex;
-      const formattedUsdcBorrowed = formatUnits(unformattedUsdcBorrowed ?? BigInt(0), 33);
+      const formattedUsdcBorrowed = formatUnits(unformattedUsdcBorrowed ?? BigInt(0), 6);
       const finalFormattedUsdcBorrowed = formatter.format(Number(formattedUsdcBorrowed));
       setUsdcBorrowed(finalFormattedUsdcBorrowed);
     }
