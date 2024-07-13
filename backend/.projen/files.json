@@ -10,6 +10,7 @@
     ".yarnrc.yml",
     "cdk.json",
     "LICENSE",
+    "src/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe-function.ts",
     "tsconfig.dev.json",
     "tsconfig.json"
   ],

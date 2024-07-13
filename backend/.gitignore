@@ -37,6 +37,7 @@ jspm_packages/
 *.tgz
 .yarn-integrity
 .cache
+.env.test
 /test-reports/
 junit.xml
 /coverage/
@@ -52,4 +53,5 @@ junit.xml
 /cdk.out/
 .cdk.staging/
 .parcel-cache/
+!/src/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe-function.ts
 !/.projenrc.ts

@@ -148,6 +148,7 @@
         "devDependencies": [
           "**/test/**",
           "**/build-tools/**",
+          "src/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda.ts",
           ".projenrc.ts",
           "projenrc/**/*.ts"
         ],

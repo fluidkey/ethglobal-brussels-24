@@ -1,7 +1,7 @@
 import { App, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-export class MyStack extends Stack {
+export class EthGlobalBrussels2024 extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
 
@@ -17,7 +17,7 @@ const devEnv = {
 
 const app = new App();
 
-new MyStack(app, 'backend-dev', { env: devEnv });
+new EthGlobalBrussels2024(app, 'eth-global-brussels-2024', { env: devEnv });
 // new MyStack(app, 'backend-prod', { env: prodEnv });
 
 app.synth();
