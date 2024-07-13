@@ -24,6 +24,7 @@
     "test": "npx projen test",
     "test:addTrackedSafe": "npx projen test:addTrackedSafe",
     "test:watch": "npx projen test:watch",
+    "test:webhookHandler": "npx projen test:webhookHandler",
     "upgrade": "npx projen upgrade",
     "watch": "npx projen watch",
     "projen": "npx projen"

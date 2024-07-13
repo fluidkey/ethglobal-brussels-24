@@ -258,6 +258,17 @@
         }
       ]
     },
+    "test:webhookHandler": {
+      "name": "test:webhookHandler",
+      "env": {
+        "ENVIRONMENT": "dev"
+      },
+      "steps": [
+        {
+          "exec": "npx ts-node src/lambda-functions/webhook-handler/local-development/webhook-handler.local-test.ts"
+        }
+      ]
+    },
     "upgrade": {
       "name": "upgrade",
       "description": "upgrade dependencies",

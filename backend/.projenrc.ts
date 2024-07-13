@@ -50,4 +50,13 @@ project.addTask('test:addTrackedSafe', {
   },
 });
 
+// add Task to execute locally the safeDeployedListener Lambda
+project.addTask('test:webhookHandler', {
+  exec: 'npx ts-node src/lambda-functions/webhook-handler/local-development/webhook-handler.local-test.ts',
+  env: {
+    ENVIRONMENT: 'dev',
+  },
+});
+
+
 project.synth();
