@@ -14,18 +14,19 @@ import { Raleway } from "next/font/google";
 const raleway = Raleway({ subsets: ["latin"] });
 
 export default function Home() {
-  const { address } = useAccount();
-  const { data: userReservesData, refetch: refetchUserReservesData } = useReadAaveUiPoolDataProviderGetUserReservesData({
-    args: ["0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
-      "0x2748BDB378aaE458f322D17e0a0851c921D466E3"],
-  });
-  const { data: reservesData, refetch: refetchReservesData } = useReadAaveUiPoolDataProviderGetReservesData({
-    args: ["0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb"]
-  });
   const [ethCollateral, setEthCollateral] = useState<string>();
   const [usdcBorrowed, setUsdcBorrowed] = useState<string>();
   const [depositAddress, setDepositAddress] = useState<string>();
   const [addressValue, setAddressValue] = useState<string | null>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const { address } = useAccount();
+  const { data: userReservesData, refetch: refetchUserReservesData } = useReadAaveUiPoolDataProviderGetUserReservesData({
+    args: ["0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb",
+      depositAddress as `0x${string}`],
+  });
+  const { data: reservesData, refetch: refetchReservesData } = useReadAaveUiPoolDataProviderGetReservesData({
+    args: ["0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb"]
+  });
 
   // Call the refetch functions every 5 seconds
   useEffect(() => {
@@ -66,14 +67,18 @@ export default function Home() {
   }, [userReservesData, reservesData]);
 
   const createDepositAddress = async () => {
+    setLoading(true);
     axios.post("https://3ebks672jrgcw36vt4hvnyurvm0oyfuv.lambda-url.eu-west-1.on.aws/", {
       "userAddress": address,
       "offrampAddress": addressValue,
     }).then((response) => {
-      localStorage.setItem("safeAddress", response.data.safeAddress);
-      setDepositAddress(response.data.safeAddress);
+      const parsedResponse = JSON.parse(response.data.body);
+      localStorage.setItem("safeAddress", parsedResponse.safeAddress);
+      setDepositAddress(parsedResponse.safeAddress);
+      setLoading(false);
     }).catch((error) => {
       console.error(error);
+      setLoading(false);
     });
   }
 
@@ -112,9 +117,9 @@ export default function Home() {
           </Card>
         </div>
         <div className="w-full max-w-4xl mt-8 sm:mt-24">
-        {depositAddress && depositAddress.length > 40 && address ? <p>Deposit address: {depositAddress}</p> : <div className="flex flex-wrap justify-center w-full max-w-4xl gap-2 items-center">
+        {depositAddress && depositAddress.length > 40 && address ? <p className="flex flex-wrap justify-center w-full max-w-4xl gap-2 items-center font-semibold">Deposit address → arb:{depositAddress}</p> : <div className="flex flex-wrap justify-center w-full max-w-4xl gap-2 items-center">
           <Input type="text" placeholder="USDC off-ramp address" className="sm:max-w-[50%]" onChangeCapture={e => setAddressValue(e.currentTarget.value)}/>
-            <Button onClick={createDepositAddress} className="bg-[#4D8A8F] hover:bg-[#84B9BD]">Create deposit address →</Button>
+            <Button onClick={createDepositAddress} className="bg-[#4D8A8F] hover:bg-[#84B9BD]" disabled={loading}>{loading ? "Loading..." : "Create deposit address →"}</Button>
           </div>}
         </div>
         <div className="flex flex-col justify-center items-center">
