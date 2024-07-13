@@ -1,9 +1,13 @@
 import assert from 'assert';
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
+import { privateKeyToAccount } from 'viem/accounts';
 import { getAddressesUnderTracking } from '../utils/alchemy/alchemy-utils';
+import { createViemWalletClient, SAFE_MODULE_ABI, SAFE_MODULE_ADDRESS } from '../utils/viem/viem-utils';
 
 const alchemyApiToken = process.env.ALCHEMY_API_TOKEN as string;
+const relayerPrivateKey = process.env.RELAYER_PRIVATE_KEY as string;
 assert(!!alchemyApiToken, 'ALCHEMY_API_TOKEN env variable is required');
+assert(!!relayerPrivateKey, 'RELAYER_PRIVATE_KEY env variable is required');
 
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -47,13 +51,31 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       addressesMovedUSDC.push(activity.toAddress);
     }
   }
+  const relayerAccount = privateKeyToAccount(relayerPrivateKey as `0x${string}`);
+  const viemWalletClient = createViemWalletClient(relayerAccount);
   for ( const address of Array.from(new Set(addressesMovedETH)) ) {
     if ( !addressesUnderTracking.includes(address) ) continue;
     console.log('Execute borrow module for address: ', address);
+    // borrow with safeAddress as parameter
+    const writeContract = await viemWalletClient.writeContract({
+      functionName: 'borrow',
+      abi: SAFE_MODULE_ABI,
+      address: SAFE_MODULE_ADDRESS,
+      args: [address],
+    });
+    console.log(writeContract);
   }
   for ( const address of Array.from(new Set(addressesMovedUSDC)) ) {
     if ( !addressesUnderTracking.includes(address) ) continue;
     console.log('Execute repay module for address: ', address);
+    // repay with safeAddress as parameter
+    const writeContract = await viemWalletClient.writeContract({
+      functionName: 'repay',
+      abi: SAFE_MODULE_ABI,
+      address: SAFE_MODULE_ADDRESS,
+      args: [address],
+    });
+    console.log(writeContract);
   }
   return {
     statusCode: 200,
