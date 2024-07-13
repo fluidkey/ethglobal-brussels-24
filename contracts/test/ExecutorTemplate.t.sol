@@ -10,7 +10,7 @@ import {
 } from "modulekit/ModuleKit.sol";
 import { MODULE_TYPE_EXECUTOR } from "modulekit/external/ERC7579.sol";
 import { ExecutionLib } from "erc7579/lib/ExecutionLib.sol";
-import { ExecutorTemplate } from "src/ExecutorTemplate.sol";
+import {BorrowOfframpExecutorModule} from "src/BorrowOfframpExecutorModule.sol";
 
 contract ExecutorTemplateTest is RhinestoneModuleKit, Test {
     using ModuleKitHelpers for *;
@@ -18,13 +18,13 @@ contract ExecutorTemplateTest is RhinestoneModuleKit, Test {
 
     // account and modules
     AccountInstance internal instance;
-    ExecutorTemplate internal executor;
+    BorrowOfframpExecutorModule internal executor;
 
     function setUp() public {
         init();
 
         // Create the executor
-        executor = new ExecutorTemplate();
+        executor = new BorrowOfframpExecutorModule();
         vm.label(address(executor), "ExecutorTemplate");
 
         // Create the account and install the executor
@@ -53,7 +53,7 @@ contract ExecutorTemplateTest is RhinestoneModuleKit, Test {
         instance.exec({
             target: address(executor),
             value: 0,
-            callData: abi.encodeWithSelector(ExecutorTemplate.execute.selector, callData)
+            callData: abi.encodeWithSelector(BorrowOfframpExecutorModule.execute.selector, callData)
         });
 
         // Check if the balance of the target has increased

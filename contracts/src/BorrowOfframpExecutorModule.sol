@@ -5,10 +5,12 @@ import { ERC7579ExecutorBase } from "modulekit/Modules.sol";
 import { IERC7579Account } from "modulekit/Accounts.sol";
 import { ModeLib } from "erc7579/lib/ModeLib.sol";
 
-contract ExecutorTemplate is ERC7579ExecutorBase {
+contract BorrowOfframpExecutorModule is ERC7579ExecutorBase {
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANTS & STORAGE
     //////////////////////////////////////////////////////////////////////////*/
+
+    mapping(address => bool) private _initialized;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONFIG
@@ -19,14 +21,18 @@ contract ExecutorTemplate is ERC7579ExecutorBase {
      *
      * @param data The data to initialize the module with
      */
-    function onInstall(bytes calldata data) external override { }
+    function onInstall(bytes calldata data) external override {
+        _initialized[msg.sender] = true;
+    }
 
     /**
      * De-initialize the module with the given data
      *
      * @param data The data to de-initialize the module with
      */
-    function onUninstall(bytes calldata data) external override { }
+    function onUninstall(bytes calldata data) external override {
+        _initialized[msg.sender] = false;
+    }
 
     /**
      * Check if the module is initialized
@@ -34,7 +40,9 @@ contract ExecutorTemplate is ERC7579ExecutorBase {
      *
      * @return true if the module is initialized, false otherwise
      */
-    function isInitialized(address smartAccount) external view returns (bool) { }
+    function isInitialized(address smartAccount) external view returns (bool) {
+        return _initialized[smartAccount];
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODULE LOGIC
@@ -46,13 +54,24 @@ contract ExecutorTemplate is ERC7579ExecutorBase {
      */
 
     /**
-     * Execute the given data.
-     * @dev This is an example function that can be used to execute arbitrary data
+     * Execute a borrow operation.
+     * @dev Check the current balance and executes a borrow operation from ETH to USDC
      * @dev This function is not part of the ERC-7579 standard
      *
      * @param data The data to execute
      */
-    function execute(bytes calldata data) external {
+    function borrow(bytes calldata data) external {
+        IERC7579Account(msg.sender).executeFromExecutor(ModeLib.encodeSimpleSingle(), data);
+    }
+
+    /**
+    * Execute a repay operation.
+    * @dev Check the current balance and executes a repay operation from USDC to ETH
+    * @dev This function is not part of the ERC-7579 standard
+    *
+    * @param data The data to execute
+    */
+    function repay(bytes calldata data) external {
         IERC7579Account(msg.sender).executeFromExecutor(ModeLib.encodeSimpleSingle(), data);
     }
 
@@ -70,7 +89,7 @@ contract ExecutorTemplate is ERC7579ExecutorBase {
      * @return name The name of the module
      */
     function name() external pure returns (string memory) {
-        return "ExecutorTemplate";
+        return "BorrowOfframp";
     }
 
     /**
