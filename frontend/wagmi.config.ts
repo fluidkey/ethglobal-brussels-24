@@ -1,14 +1,20 @@
 import { defineConfig } from '@wagmi/cli'
 import { arbitrum } from 'viem/chains'
 import { etherscan, react } from "@wagmi/cli/plugins";
+import { erc20Abi } from 'viem';
 
 export default defineConfig({
   out: 'src/generated.ts',
-  contracts: [],
+  contracts: [
+    {
+      name: 'erc20',
+      abi: erc20Abi,
+    },
+  ],
   plugins: [
     react(),
     etherscan({
-      apiKey: "",
+      apiKey: "BIMA483JJPZ43MWYPK9Y95HSTICGFJP73R",
       chainId: arbitrum.id,
       contracts: [
         {

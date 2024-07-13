@@ -3,7 +3,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import axios from "axios";
-import { useReadAaveUiPoolDataProviderGetReservesData, useReadAaveUiPoolDataProviderGetUserReservesData } from "@/generated";
+import { useReadAaveUiPoolDataProviderGetReservesData, useReadAaveUiPoolDataProviderGetUserReservesData, useReadErc20BalanceOf } from "@/generated";
 import { formatUnits } from "viem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,12 +26,16 @@ export default function Home() {
   const { data: reservesData, refetch: refetchReservesData } = useReadAaveUiPoolDataProviderGetReservesData({
     args: ["0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb"]
   });
-
+  const { data: erc20Data, refetch: refetchErc20Data } = useReadErc20BalanceOf({
+    address: "0xf611aEb5013fD2c0511c9CD55c7dc5C1140741A6",
+    args: [depositAddress as `0x${string}`],
+  });
   // Call the refetch functions every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       refetchUserReservesData();
       refetchReservesData();
+      refetchErc20Data();
     }, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -50,16 +54,14 @@ export default function Home() {
 
   useEffect(() => {
     if (userReservesData && reservesData) {
+      console.log(userReservesData);
       const unformattedEthCollateral = userReservesData[0].find(balance => balance.underlyingAsset === "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1")?.scaledATokenBalance ?? BigInt(0);
       const ethLiquidityIndex = reservesData[0].find(reserve => reserve.underlyingAsset === "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1")?.liquidityIndex ?? BigInt(0);
       const finalEthCollateral = unformattedEthCollateral * ethLiquidityIndex;
       const formattedEthCollateral = formatUnits(finalEthCollateral, 45);
       const finalFormattedEthCollateral = formatter.format(Number(formattedEthCollateral));
       setEthCollateral(finalFormattedEthCollateral);
-      const unformattedUsdcBorrowed = userReservesData[0].find(balance => balance.underlyingAsset === "0xaf88d065e77c8cC2239327C5EDb3A432268e5831")?.scaledVariableDebt ?? BigInt(0);
-      const usdcLiquidityIndex = reservesData[0].find(reserve => reserve.underlyingAsset === "0xaf88d065e77c8cC2239327C5EDb3A432268e5831")?.liquidityIndex ?? BigInt(0);
-      const finalUsdcBorrowed = unformattedUsdcBorrowed * usdcLiquidityIndex;
-      const formattedUsdcBorrowed = formatUnits(unformattedUsdcBorrowed ?? BigInt(0), 6);
+      const formattedUsdcBorrowed = formatUnits(erc20Data ?? BigInt(0), 6);
       const finalFormattedUsdcBorrowed = formatter.format(Number(formattedUsdcBorrowed));
       setUsdcBorrowed(finalFormattedUsdcBorrowed);
     }
