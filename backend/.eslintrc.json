@@ -148,7 +148,8 @@
         "devDependencies": [
           "**/test/**",
           "**/build-tools/**",
-          "src/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda.ts",
+          "src/lambda-functions/add-tracked-safe/add-tracked-safe.lambda.ts",
+          "src/lambda-functions/webhook-handler/webhook-handler.lambda.ts",
           ".projenrc.ts",
           "projenrc/**/*.ts"
         ],

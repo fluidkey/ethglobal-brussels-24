@@ -53,5 +53,6 @@ junit.xml
 /cdk.out/
 .cdk.staging/
 .parcel-cache/
-!/src/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe-function.ts
+!/src/lambda-functions/add-tracked-safe/add-tracked-safe-function.ts
+!/src/lambda-functions/webhook-handler/webhook-handler-function.ts
 !/.projenrc.ts

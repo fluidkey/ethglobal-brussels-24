@@ -29,25 +29,46 @@
       "description": "Prepare assets",
       "steps": [
         {
-          "spawn": "bundle:lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda"
+          "spawn": "bundle:lambda-functions/add-tracked-safe/add-tracked-safe.lambda"
+        },
+        {
+          "spawn": "bundle:lambda-functions/webhook-handler/webhook-handler.lambda"
         }
       ]
     },
-    "bundle:lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda": {
-      "name": "bundle:lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda",
-      "description": "Create a JavaScript bundle from src/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda.ts",
+    "bundle:lambda-functions/add-tracked-safe/add-tracked-safe.lambda": {
+      "name": "bundle:lambda-functions/add-tracked-safe/add-tracked-safe.lambda",
+      "description": "Create a JavaScript bundle from src/lambda-functions/add-tracked-safe/add-tracked-safe.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+          "exec": "esbuild --bundle src/lambda-functions/add-tracked-safe/add-tracked-safe.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/lambda-functions/add-tracked-safe/add-tracked-safe.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
         }
       ]
     },
-    "bundle:lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda:watch": {
-      "name": "bundle:lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda:watch",
-      "description": "Continuously update the JavaScript bundle from src/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda.ts",
+    "bundle:lambda-functions/add-tracked-safe/add-tracked-safe.lambda:watch": {
+      "name": "bundle:lambda-functions/add-tracked-safe/add-tracked-safe.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambda-functions/add-tracked-safe/add-tracked-safe.lambda.ts",
       "steps": [
         {
-          "exec": "esbuild --bundle src/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/lambda-functions/deploy-erc7579-safe/deploy-erc7579-safe.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+          "exec": "esbuild --bundle src/lambda-functions/add-tracked-safe/add-tracked-safe.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/lambda-functions/add-tracked-safe/add-tracked-safe.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
+        }
+      ]
+    },
+    "bundle:lambda-functions/webhook-handler/webhook-handler.lambda": {
+      "name": "bundle:lambda-functions/webhook-handler/webhook-handler.lambda",
+      "description": "Create a JavaScript bundle from src/lambda-functions/webhook-handler/webhook-handler.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambda-functions/webhook-handler/webhook-handler.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/lambda-functions/webhook-handler/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/*"
+        }
+      ]
+    },
+    "bundle:lambda-functions/webhook-handler/webhook-handler.lambda:watch": {
+      "name": "bundle:lambda-functions/webhook-handler/webhook-handler.lambda:watch",
+      "description": "Continuously update the JavaScript bundle from src/lambda-functions/webhook-handler/webhook-handler.lambda.ts",
+      "steps": [
+        {
+          "exec": "esbuild --bundle src/lambda-functions/webhook-handler/webhook-handler.lambda.ts --target=\"node18\" --platform=\"node\" --outfile=\"assets/lambda-functions/webhook-handler/webhook-handler.lambda/index.js\" --tsconfig=\"tsconfig.dev.json\" --external:@aws-sdk/* --watch"
         }
       ]
     },
@@ -217,14 +238,14 @@
         }
       ]
     },
-    "test:deployErc7579Safe": {
-      "name": "test:deployErc7579Safe",
+    "test:addTrackedSafe": {
+      "name": "test:addTrackedSafe",
       "env": {
         "ENVIRONMENT": "dev"
       },
       "steps": [
         {
-          "exec": "npx ts-node src/lambda-functions/deploy-erc7579-safe/local-development/deploy-erc7579-safe.local-test.ts"
+          "exec": "npx ts-node src/lambda-functions/add-tracked-safe/local-development/add-tracked-safe.local-test.ts"
         }
       ]
     },
@@ -237,6 +258,17 @@
         }
       ]
     },
+    "test:webhookHandler": {
+      "name": "test:webhookHandler",
+      "env": {
+        "ENVIRONMENT": "dev"
+      },
+      "steps": [
+        {
+          "exec": "npx ts-node src/lambda-functions/webhook-handler/local-development/webhook-handler.local-test.ts"
+        }
+      ]
+    },
     "upgrade": {
       "name": "upgrade",
       "description": "upgrade dependencies",
@@ -245,13 +277,13 @@
       },
       "steps": [
         {
-          "exec": "yarn dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,lambda-local,projen,ts-jest,ts-node,typescript,@rhinestone/module-sdk,permissionless,tslib,viem"
+          "exec": "yarn dlx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@types/jest,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,jest,lambda-local,projen,ts-jest,ts-node,typescript,@rhinestone/module-sdk,@safe-global/protocol-kit,@safe-global/safe-deployments,axios,dotenv,permissionless,tslib,viem"
         },
         {
           "exec": "yarn install"
         },
         {
-          "exec": "yarn up @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit lambda-local projen ts-jest ts-node typescript @rhinestone/module-sdk aws-cdk-lib constructs permissionless tslib viem"
+          "exec": "yarn up @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit lambda-local projen ts-jest ts-node typescript @rhinestone/module-sdk @safe-global/protocol-kit @safe-global/safe-deployments aws-cdk-lib aws-lambda axios constructs dotenv permissionless tslib viem"
         },
         {
           "exec": "npx projen"
