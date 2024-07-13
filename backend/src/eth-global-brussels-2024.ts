@@ -11,6 +11,7 @@ export class EthGlobalBrussels2024 extends Stack {
   constructor(scope: Construct, id: string, props: EthGlobalBrussels2024Props) {
     super(scope, id, props);
     assert(!!props.alchemyApiToken, 'alchemyApiKey props is missing');
+    assert(!!props.relayerPrivateKey, 'relayerPrivateKey props is missing');
     const addTrackedSafeLambda = new AddTrackedSafeFunction(
       this,
       'AddTrackedSafeFunction',
@@ -18,6 +19,7 @@ export class EthGlobalBrussels2024 extends Stack {
         functionName: 'eth-global-brussels-2024-add-tracked-safe',
         environment: {
           ALCHEMY_API_TOKEN: props.alchemyApiToken,
+          RELAYER_PRIVATE_KEY: props.relayerPrivateKey,
         },
         architecture: aws_lambda.Architecture.ARM_64,
         memorySize: 256,
@@ -40,7 +42,7 @@ export class EthGlobalBrussels2024 extends Stack {
       {
         functionName: 'eth-global-brussels-2024-webhook-handler',
         environment: {
-          ALCHEMY_API_KEY: 'alchemy-api-key',
+          ALCHEMY_API_TOKEN: props.alchemyApiToken,
         },
         architecture: aws_lambda.Architecture.ARM_64,
         memorySize: 256,
@@ -87,6 +89,7 @@ const app = new App();
 new EthGlobalBrussels2024(app, 'eth-global-brussels-2024', {
   env: devEnv,
   alchemyApiToken: process.env.ALCHEMY_API_TOKEN as string,
+  relayerPrivateKey: process.env.RELAYER_PRIVATE_KEY as string,
 });
 
 app.synth();

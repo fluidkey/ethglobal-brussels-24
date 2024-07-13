@@ -41,7 +41,10 @@ var jsonPayload = {
     time: '13/Jul/2024:12:02:18 +0000',
     timeEpoch: 1720872138345,
   },
-  body: '{\n    "safeAddress": "0x12e59c59d282d2c00f3166915bed6dc2f5e2b5c7"\n}',
+  body: JSON.stringify({
+    userAddress: '0x12e59c59d282d2c00f3166915bed6dc2f5e2b5c7',
+    offrampAddress: '0xE1934217f1adf611420576af84438e8F865078dd',
+  }),
   isBase64Encoded: false,
 };
 
@@ -51,7 +54,7 @@ void lambdaLocal.execute({
   profilePath: '~/.aws/credentials',
   profileName: 'fluidkey',
   region: 'eu-west-1',
-  timeoutMs: 5000,
+  timeoutMs: 90000,
   callback: function (err: any, data: any) {
     if (err) {
       console.log(err);

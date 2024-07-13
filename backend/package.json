@@ -50,6 +50,8 @@
   },
   "dependencies": {
     "@rhinestone/module-sdk": "^0.1.7",
+    "@safe-global/protocol-kit": "^4.0.2",
+    "@safe-global/safe-deployments": "^1.37.1",
     "aws-cdk-lib": "^2.149.0",
     "aws-lambda": "1.0.7",
     "axios": "^1.7.2",

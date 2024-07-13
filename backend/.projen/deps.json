@@ -80,6 +80,14 @@
       "type": "runtime"
     },
     {
+      "name": "@safe-global/protocol-kit",
+      "type": "runtime"
+    },
+    {
+      "name": "@safe-global/safe-deployments",
+      "type": "runtime"
+    },
+    {
       "name": "aws-cdk-lib",
       "version": "^2.149.0",
       "type": "runtime"

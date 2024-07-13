@@ -31,6 +31,8 @@ const project = new awscdk.AwsCdkTypeScriptApp({
     'viem',
     '@rhinestone/module-sdk',
     'tslib',
+    '@safe-global/safe-deployments',
+    '@safe-global/protocol-kit',
   ],
   devDeps: [
     'lambda-local',
