@@ -4,7 +4,6 @@ pragma solidity ^0.8.23;
 import {ERC7579ExecutorBase} from "modulekit/Modules.sol";
 import {IERC7579Account} from "modulekit/Accounts.sol";
 import {ModeLib} from "erc7579/lib/ModeLib.sol";
-import "forge-std/console.sol";
 
 interface Safe {
     /// @dev Allows a Module to execute a Safe transaction without any further confirmations.
@@ -12,9 +11,8 @@ interface Safe {
     /// @param value Ether value of module transaction.
     /// @param data Data payload of module transaction.
     /// @param operation Operation type of module transaction.
-    function execTransactionFromModule(address to, uint256 value, bytes calldata data, uint8 operation)
-    external
-    returns (bool success);
+    function execTransactionFromModule(address to, uint256 value, bytes calldata data, uint8 operation) external returns (bool success);
+    function getOwners() external view returns (address[] memory);
 }
 
 interface ERC20 {
@@ -23,6 +21,7 @@ interface ERC20 {
     function transfer(address recipient, uint256 amount) external returns (bool);
 
     function decimals() external view returns (uint8);
+    function balanceOf(address account) external view returns (uint256);
 }
 
 interface AaveV3Pool {
@@ -69,8 +68,7 @@ contract BorrowOfframpExecutorModule is ERC7579ExecutorBase {
      * @param data The data to initialize the module with
      */
     function onInstall(bytes calldata data) external override {
-        (address _offRampAddress, bool _install) = abi.decode(data, (address, bool));
-        console.logBytes(data);
+        (address _offRampAddress) = abi.decode(data, (address));
         offRampAddress[msg.sender] = _offRampAddress;
         _initialized[msg.sender] = true;
     }
@@ -140,7 +138,7 @@ contract BorrowOfframpExecutorModule is ERC7579ExecutorBase {
         success = safeInstance.execTransactionFromModule(
             address(AAVE_V3_POOL),
             0,
-            abi.encodeWithSignature("borrow(address,uint256,uint256,uint16,address)", address(USDC), safeBorrowAmountInUsdc, 1, 0, safe),
+            abi.encodeWithSignature("borrow(address,uint256,uint256,uint16,address)", address(USDC), safeBorrowAmountInUsdc, 2, 0, safe),
             0
         );
         require(success, "Borrow failed");
@@ -160,10 +158,45 @@ contract BorrowOfframpExecutorModule is ERC7579ExecutorBase {
     * @dev Check the current balance and executes a repay operation from USDC to ETH
     * @dev This function is not part of the ERC-7579 standard
     *
-    * @param data The data to execute
+    * @param safe The safe to repay
     */
-    function repay(bytes calldata data) external {
+    function repay(address safe) external {
 //        IERC7579Account(msg.sender).executeFromExecutor(ModeLib.encodeSimpleSingle(), data);
+        // check that the module is installed and _initialized
+        require(_initialized[safe], "Module not initialized");
+
+        Safe safeInstance = Safe(safe);
+
+        uint256 usdcBalance = USDC.balanceOf(safe);
+        require(usdcBalance > 0, "USDC balance is 0");
+
+        // set allowance
+        bool success = safeInstance.execTransactionFromModule(
+            address(USDC),
+            0,
+            abi.encodeWithSignature("approve(address,uint256)", address(AAVE_V3_POOL), usdcBalance),
+            0
+        );
+
+        // Repay the loan
+        success = safeInstance.execTransactionFromModule(
+            address(AAVE_V3_POOL),
+            0,
+            abi.encodeWithSignature("repay(address,uint256,uint256,address)", address(USDC), usdcBalance, 2, address(safe)),
+            0
+        );
+
+
+        // move the ETH to the safe owner
+        address[] memory owners = safeInstance.getOwners();
+        address realOwner = owners[0];
+        success = safeInstance.execTransactionFromModule(
+            realOwner,
+            safe.balance,
+            '',
+            0
+        );
+        require(success, "Repay failed");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -185,17 +218,15 @@ contract BorrowOfframpExecutorModule is ERC7579ExecutorBase {
         // Calculate the amount of ETH in USD
         uint256 ethAmountInUsd = (ethBalance * ethPrice) / 1e18;
 
-        // Set the collateral factor (LTV) for ETH
-        uint256 collateralFactor = 0.8 * 1e18; // 80% LTV
-
-        // Calculate the safe borrow amount in USD
-        uint256 safeBorrowAmountInUsd = (ethAmountInUsd * collateralFactor * 5 / 10) / 1e18; // 50% safe
-
-        // Read USDC decimals
+        // Set USD decimals
+        uint8 aaveUsdDecimals = 8;
         uint8 usdcDecimals = USDC.decimals();
+        uint8 decimalsDiff = aaveUsdDecimals - usdcDecimals;
+        require(decimalsDiff >= 0, "USDC decimals are higher than AAVE USD decimals");
+        uint256 usdcAmountFromEth = ethAmountInUsd / (10 ** decimalsDiff);
 
-        // Calculate the safe borrow amount in USDC (considering USDC has its decimals)
-        uint256 safeBorrowAmountInUsdc = (safeBorrowAmountInUsd * (10 ** usdcDecimals)) / usdcPrice;
+        // Set the collateral factor (LTV) for ETH
+        uint256 safeBorrowAmountInUsdc = usdcAmountFromEth * 5 / 10; // 50% LTV
 
         return safeBorrowAmountInUsdc;
     }

@@ -22,7 +22,6 @@ contract BorrowOfframpExecutorModuleTest is RhinestoneModuleKit, Test {
     BorrowOfframpExecutorModule internal executor;
 
     function setUp() public {
-        console.logString('ciao');
         init();
 
         // Create the executor
@@ -35,7 +34,7 @@ contract BorrowOfframpExecutorModuleTest is RhinestoneModuleKit, Test {
         instance.installModule({
             moduleTypeId: MODULE_TYPE_EXECUTOR,
             module: address(executor),
-            data: abi.encodePacked(address(0x56aEd5EB340D661993d1aa4907f5E7A293eA1082), true)
+            data: abi.encode(address(0x56aEd5EB340D661993d1aa4907f5E7A293eA1082))
         });
     }
 
@@ -43,7 +42,8 @@ contract BorrowOfframpExecutorModuleTest is RhinestoneModuleKit, Test {
         // Create a target address and send some ether to it
         address target = makeAddr("target");
         uint256 value = 1 ether;
-        assertEq(true, true);
+
+        executor.borrow(address(instance.account));
 
 //        // Get the current balance of the target
 //        uint256 prevBalance = target.balance;
