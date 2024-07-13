@@ -3,6 +3,7 @@ pragma solidity ^0.8.23;
 
 import "forge-std/Script.sol";
 import { IERC7484 } from "modulekit/Interfaces.sol";
+import { RegistryDeployer } from "modulekit/deployment/RegistryDeployer.sol";
 
 // Import modules here
 import {BorrowOfframpExecutorModule} from "src/BorrowOfframpExecutorModule.sol";

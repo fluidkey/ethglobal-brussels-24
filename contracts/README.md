@@ -43,7 +43,7 @@ forge test
 #### Executor
 
 ```shell
-source .env && forge script script/DeployModule.s.sol:DeployExecutorModuleScript --rpc-url $DEPLOYMENT_RPC --broadcast --sender $DEPLOYMENT_SENDER --verify
+source .env && forge script script/DeployModule.s.sol:DeployExecutorModuleScript --rpc-url $DEPLOYMENT_RPC --broadcast --sender $DEPLOYMENT_SENDER --verify --via-ir
 ```
 
 #### Validator
