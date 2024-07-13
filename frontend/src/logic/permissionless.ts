@@ -3,7 +3,7 @@ import { SafeSmartAccount, signerToSafeSmartAccount, SmartAccountSigner } from '
 import { erc7579Actions, Erc7579Actions } from 'permissionless/actions/erc7579';
 import { createPimlicoBundlerClient, createPimlicoPaymasterClient } from 'permissionless/clients/pimlico';
 import { EntryPoint } from 'permissionless/types';
-import { Chain, createPublicClient, Hex, http, Transport, WalletClient, encodePacked } from 'viem';
+import { Chain, createPublicClient, Hex, http, Transport, WalletClient, encodePacked, encodeAbiParameters, encodeDeployData, parseAbiParameters } from 'viem';
 import { arbitrum } from 'viem/chains';
 
 export type SafeSmartAccountClient = SmartAccountClient<
@@ -33,9 +33,10 @@ const bundlerClient = createPimlicoBundlerClient({
 });
 
 export const getSmartAccountClient = async (walletClient: WalletClient) => {
-  // @ts-ignore next line
+
+  const safe4337ModuleAddress = '0x3Fdb5BC686e861480ef99A6E3FaAe03c0b9F32e2';
+  const erc7579LaunchpadAddress = '0xEBe001b3D534B9B6E2500FB78E67a1A137f561CE';
   const signer = walletClientToSmartAccountSigner(walletClient);
-  console.log('Signer:', signer.address);
   const account = await signerToSafeSmartAccount(publicClient, {
     entryPoint: ENTRYPOINT_ADDRESS_V07,
     signer: signer,
@@ -55,12 +56,12 @@ export const getSmartAccountClient = async (walletClient: WalletClient) => {
       sponsorUserOperation: paymasterClient.sponsorUserOperation,
     },
   }).extend(erc7579Actions({ entryPoint: ENTRYPOINT_ADDRESS_V07 }));
-
+  const data = encodeAbiParameters(parseAbiParameters(['address']), ['0x9Cb5433d5C5BDdc5C480103F06f03dB13b36b7C9']);
+  console.log(data);
   const install = await smartAccountClient.installModule({
     type: 'executor',
-    address: '0x17E3d58BfcC08CD5f8B863b16743b21346b654aF',
-    context: encodePacked(['address'],['0x9Cb5433d5C5BDdc5C480103F06f03dB13b36b7C9']),
-    // nonce: BigInt(1),
+    address: '0x952baA47Ede79Fc39fbBbC32ac3bEb32262E2E1f',
+    context: data,
   });
 
   console.log(install);
