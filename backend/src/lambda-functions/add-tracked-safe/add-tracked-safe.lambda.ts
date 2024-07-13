@@ -1,10 +1,10 @@
 import assert from 'assert';
 import { SafeAccountConfig, SafeFactory } from '@safe-global/protocol-kit';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { AbiItem, createPublicClient, createWalletClient, encodeAbiParameters, encodeFunctionData, fallback, http, toHex, encodePacked, toBytes } from 'viem';
+import { APIGatewayProxyEvent, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { AbiItem, encodeAbiParameters, encodeFunctionData, encodePacked, toBytes, toHex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { arbitrum } from 'viem/chains';
 import { addAddressUnderTracking } from '../utils/alchemy/alchemy-utils';
+import { createViemPublicClient, createViemWalletClient, SAFE_MODULE_ADDRESS } from '../utils/viem/viem-utils';
 
 const alchemyApiToken = process.env.ALCHEMY_API_TOKEN as string;
 const relayerPrivateKey = process.env.RELAYER_PRIVATE_KEY as string;
@@ -77,7 +77,7 @@ export const prepareTxDataForMulticall = (params: {
   };
 };
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResultV2> => {
   console.log(JSON.stringify(event));
   const body = !!event.body ? JSON.parse(event.body) : {};
   console.log(body);
@@ -104,10 +104,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const safeAddress = await protocolKit.getAddress();
   let nonce = 0;
   console.log('Generated safe', safeAddress);
-  const moduleAddress = '0xd6bb87212B5398AEA83bCf5c33787789c0923471';
   // prepare call to enable module
   const enableModuleTx = await protocolKit.createEnableModuleTx(
-    moduleAddress,
+    SAFE_MODULE_ADDRESS,
     {
       nonce: nonce,
     },
@@ -135,7 +134,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       {
         data: data,
         value: '0x0',
-        to: moduleAddress,
+        to: SAFE_MODULE_ADDRESS,
       },
     ],
     options: {
@@ -164,32 +163,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     ],
     safeAddress: safeAddress,
   });
-  const viemWalletClient = createWalletClient({
-    account: relayerAccount,
-    chain: arbitrum,
-    transport: fallback([
-      http('https://arb-mainnet.g.alchemy.com/v2/PQko-Hx_nZBkPbyYkEg8blONRN15Q3WA'),
-      http(), // finally fall back to the public one
-    ]),
-  });
-  const publicClient = createPublicClient({
-    chain: {
-      id: 42161,
-      rpcUrls: {
-        default: { http: ['https://arb-mainnet.g.alchemy.com/v2/PQko-Hx_nZBkPbyYkEg8blONRN15Q3WA'] },
-      },
-      name: 'arb',
-      nativeCurrency: {
-        name: 'Ethereum',
-        symbol: 'ETH',
-        decimals: 18,
-      },
-    },
-    transport: fallback([
-      http('https://arb-mainnet.g.alchemy.com/v2/PQko-Hx_nZBkPbyYkEg8blONRN15Q3WA'),
-      http(), // finally fall back to the public one
-    ]),
-  });
+  const viemWalletClient = createViemWalletClient(relayerAccount);
+  const publicClient = createViemPublicClient();
   const feesPerGas = await publicClient.estimateFeesPerGas();
   // estimate the gas so that we can then set a 20% more
   const gas = await publicClient.estimateGas({
@@ -223,5 +198,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       message: 'Safe created successfully',
       safeAddress: safeAddress,
     }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
   };
 };
