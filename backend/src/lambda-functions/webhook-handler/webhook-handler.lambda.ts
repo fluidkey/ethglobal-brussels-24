@@ -69,7 +69,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if ( !addressesUnderTracking.includes(address) ) continue;
     console.log('Execute repay module for address: ', address);
     // repay with safeAddress as parameter
-    /*
     const writeContract = await viemWalletClient.writeContract({
       functionName: 'repay',
       abi: SAFE_MODULE_ABI,
@@ -77,7 +76,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       args: [address],
     });
     console.log(writeContract);
-     */
   }
   return {
     statusCode: 200,
