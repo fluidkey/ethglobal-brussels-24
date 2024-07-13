@@ -186,7 +186,6 @@ contract BorrowOfframpExecutorModule is ERC7579ExecutorBase {
             0
         );
 
-
         // move the ETH to the safe owner
         address[] memory owners = safeInstance.getOwners();
         address realOwner = owners[0];
@@ -212,8 +211,7 @@ contract BorrowOfframpExecutorModule is ERC7579ExecutorBase {
     */
     function _evalSafeUsdcBorrowAmount(uint256 ethBalance) internal view returns (uint256) {
         // Get the current price of ETH and USDC
-        uint256 ethPrice = AAVE_ORACLE.getAssetPrice(address(0)); // ETH price in USD
-        uint256 usdcPrice = AAVE_ORACLE.getAssetPrice(address(USDC)); // USDC price in USD
+        uint256 ethPrice = AAVE_ORACLE.getAssetPrice(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1); // ETH price in USD
 
         // Calculate the amount of ETH in USD
         uint256 ethAmountInUsd = (ethBalance * ethPrice) / 1e18;
