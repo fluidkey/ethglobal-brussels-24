@@ -43,6 +43,7 @@ export class EthGlobalBrussels2024 extends Stack {
         functionName: 'eth-global-brussels-2024-webhook-handler',
         environment: {
           ALCHEMY_API_TOKEN: props.alchemyApiToken,
+          RELAYER_PRIVATE_KEY: props.relayerPrivateKey,
         },
         architecture: aws_lambda.Architecture.ARM_64,
         memorySize: 256,
