@@ -1,8 +1,7 @@
 "use client";
-import { getSmartAccountClient, SafeSmartAccountClient } from "@/logic/permissionless";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ChangeEvent, ChangeEventHandler, FormEventHandler, useEffect, useState } from "react";
-import { useAccount, useWalletClient } from "wagmi";
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 import axios from "axios";
 import { useReadAaveUiPoolDataProviderGetReservesData, useReadAaveUiPoolDataProviderGetUserReservesData } from "@/generated";
 import { formatUnits } from "viem";
