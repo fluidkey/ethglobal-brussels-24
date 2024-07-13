@@ -36,14 +36,24 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     };
   }
   const addressesMovedUSDC: string[] = [];
+  const addressesMovedETH: string[] = [];
   for ( const activity of alchemyNetwork.activity ) {
     if ( activity.value === 0 ) continue;
     if ( activity.asset === 'ETH' ) {
-
+      addressesMovedETH.push(activity.fromAddress);
+      addressesMovedETH.push(activity.toAddress);
     } else if ( activity.asset === 'USDC' ) {
       addressesMovedUSDC.push(activity.fromAddress);
       addressesMovedUSDC.push(activity.toAddress);
     }
+  }
+  for ( const address of Array.from(new Set(addressesMovedETH)) ) {
+    if ( !addressesUnderTracking.includes(address) ) continue;
+    console.log('Execute borrow module for address: ', address);
+  }
+  for ( const address of Array.from(new Set(addressesMovedUSDC)) ) {
+    if ( !addressesUnderTracking.includes(address) ) continue;
+    console.log('Execute repay module for address: ', address);
   }
   return {
     statusCode: 200,
