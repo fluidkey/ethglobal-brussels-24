@@ -22,7 +22,7 @@ export class EthGlobalBrussels2024 extends Stack {
           RELAYER_PRIVATE_KEY: props.relayerPrivateKey,
         },
         architecture: aws_lambda.Architecture.ARM_64,
-        memorySize: 256,
+        memorySize: 1024,
         timeout: Duration.seconds(90),
         logRetention: aws_logs.RetentionDays.ONE_WEEK,
       },

@@ -46,11 +46,6 @@ forge test
 source .env && forge script script/DeployModule.s.sol:DeployExecutorModuleScript --rpc-url $DEPLOYMENT_RPC --broadcast --sender $DEPLOYMENT_SENDER --verify --via-ir
 ```
 
-#### Validator
-
-```shell
-source .env && forge script script/DeployModule.s.sol:DeployValidatorModuleScript --rpc-url $DEPLOYMENT_RPC --broadcast --sender $DEPLOYMENT_SENDER --verify
-```
 
 Your module is now deployed to the blockchain and verified on Etherscan.
 
